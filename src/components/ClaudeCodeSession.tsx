@@ -328,10 +328,33 @@ export const ClaudeCodeSession: React.FC<ClaudeCodeSessionProps> = ({
         }
       };
 
-      // More frequent updates during streaming for better UX
-      const intervalId = setInterval(scrollToBottom, 300);
-      
-      return () => clearInterval(intervalId);
+      // Use MutationObserver for better performance on Linux
+      let scrollTimeout: NodeJS.Timeout;
+      const debouncedScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(scrollToBottom, 100);
+      };
+
+      const observer = new MutationObserver(() => {
+        debouncedScroll();
+      });
+
+      if (parentRef.current) {
+        observer.observe(parentRef.current, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+          attributes: false
+        });
+      }
+
+      // Initial scroll
+      scrollToBottom();
+
+      return () => {
+        clearTimeout(scrollTimeout);
+        observer.disconnect();
+      };
     }
   }, [isLoading, displayableMessages.length, shouldAutoScroll, userScrolled]);
 

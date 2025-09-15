@@ -59,6 +59,13 @@ codegen-units = 16  # Enable parallel compilation
 incremental = true  # Enable incremental compilation
 debug = true        # Keep debug info for better debugging
 
+# Linux-optimized release profile
+[profile.release-linux]
+inherits = "release"
+opt-level = 2       # Better for Linux performance
+lto = "thin"        # Thin LTO for faster builds
+codegen-units = 4   # Balance between size and compilation speed
+
 # Production release profile (current settings)
 [profile.release]
 # Enable more aggressive optimizations for smaller binary size
